@@ -15,7 +15,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         auth.inMemoryAuthentication()
                 .withUser(userBuilder.username("admin").password("").roles("ADMIN"))
-                .withUser(userBuilder.username("user").password("").roles("USER"));
+                .withUser(userBuilder.username("igor").password("").roles("USER"))
+                .withUser(userBuilder.username("ivan").password("").roles("USER"));
     }
 
     @Override
@@ -23,8 +24,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/users/save_registered_user").permitAll()
-                .antMatchers("/api/users/**").permitAll()
+                .antMatchers("/admin").hasAnyRole("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()

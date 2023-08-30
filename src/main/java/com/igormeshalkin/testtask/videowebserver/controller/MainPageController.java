@@ -2,6 +2,7 @@ package com.igormeshalkin.testtask.videowebserver.controller;
 
 import com.igormeshalkin.testtask.videowebserver.dao.FileDAO;
 import com.igormeshalkin.testtask.videowebserver.entity.File;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ public class MainPageController {
     @RequestMapping(method = RequestMethod.GET)
     public String main(Model model) {
         List<File> myFiles = fileDAO.findAllByCurrentUser();
+        model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getName());
         model.addAttribute("actualFiles", myFiles);
         return "main";
     }

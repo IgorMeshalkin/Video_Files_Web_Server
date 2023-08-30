@@ -22,13 +22,13 @@ public class FileUploadManager {
     private final String NOT_VIDEO_FILE_MESSAGE = "Вы можете загружать только видео файлы";
 
     private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
-    private static final Set<UploadTracker> uploadTrackers = new HashSet<>();
+    private volatile static Set<UploadTracker> uploadTrackers = new HashSet<>();
 
     public FileUploadManager(FileDAO fileDAO) {
         this.fileDAO = fileDAO;
     }
 
-    public void addUploadToPool(MultipartFile file) throws UploadVideoException {
+    public void addUploadToPool(MultipartFile file) throws UploadVideoException, ExecutionException, InterruptedException {
         String currentUserName = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!file.getContentType().split("/")[0].equals("video")) {
@@ -39,18 +39,17 @@ public class FileUploadManager {
             Future<?> future = executorService.submit(new UploadAction(currentUserName, file, fileDAO));
             UploadTracker uploadTracker = new UploadTracker(currentUserName, file.getOriginalFilename(), file.getSize());
             uploadTrackers.add(uploadTracker);
-            try {
-                future.get();
-                uploadTrackers.remove(uploadTracker);
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            future.get();
         } else {
             throw new UploadVideoException(MORE_THEN_TWO_UPLOADS_MESSAGE);
         }
     }
 
-    public Set<UploadTracker> getUploadTrackers() {
+    public static Set<UploadTracker> getUploadTrackers() {
         return uploadTrackers;
+    }
+
+    public static synchronized void removeTracker(UploadTracker tracker) {
+        uploadTrackers.remove(tracker);
     }
 }

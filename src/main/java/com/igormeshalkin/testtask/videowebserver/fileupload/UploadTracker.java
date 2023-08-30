@@ -4,11 +4,13 @@ public class UploadTracker {
     public String owner;
     public String fileName;
     public Long fileSize;
+    public int progress;
 
     public UploadTracker(String owner, String fileName, Long fileSize) {
         this.owner = owner;
         this.fileName = fileName;
         this.fileSize = fileSize;
+        this.progress = 0;
     }
 
     public String getOwner() {
@@ -23,13 +25,12 @@ public class UploadTracker {
         return fileSize;
     }
 
-    @Override
-    public String toString() {
-        return "UploadTracker{" +
-                "owner='" + owner + '\'' +
-                ", fileName='" + fileName + '\'' +
-                ", fileSize=" + fileSize +
-                '}';
+    public int getProgress() {
+        return progress;
+    }
+
+    public void setProgress(int progress) {
+        this.progress = progress;
     }
 
     @Override

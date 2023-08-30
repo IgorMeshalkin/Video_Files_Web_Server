@@ -9,15 +9,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping("/admin")
 public class AdminPageController {
-    private final FileUploadManager fileUploadManager;
-
-    public AdminPageController(FileUploadManager fileUploadManager) {
-        this.fileUploadManager = fileUploadManager;
-    }
-
     @RequestMapping(method = RequestMethod.GET)
     public String getAllUploadTrackers(Model model) {
-        model.addAttribute("uploadingFiles", fileUploadManager.getUploadTrackers());
+        model.addAttribute("uploadingFiles", FileUploadManager.getUploadTrackers());
         return "adminsDashboard";
     }
 }

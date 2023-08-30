@@ -2,15 +2,25 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <style>
     td {
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    th {
+        padding-left: 20px;
+        padding-right: 20px;
     }
 </style>
 <html>
 <body style="height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; flex-direction: column">
 <div style="position: fixed; top: 20px; right: 20px">
-    <form action="/logout" method="post" style="float: right">
+    <form action="/logout" method="post">
         <input type="submit" value="Выйти"/>
+    </form>
+</div>
+<div style="position: fixed; top: 50px; right: 20px">
+    <form action="/admin" method="get" style="display: ${currentUser.equals("admin") ? "auto" : "none"}">
+        <input type="submit" value="Просмотреть загружаемые файлы"/>
     </form>
 </div>
 <c:choose>
@@ -20,7 +30,7 @@
             <thead>
             <tr>
                 <th>Название</th>
-                <th>Размер</th>
+                <th>Размер (Mb)</th>
             </tr>
             </thead>
             <tbody>
@@ -33,7 +43,7 @@
 
                 <tr>
                     <td>${file.fileName}</td>
-                    <td>${file.fileSize}</td>
+                    <td>${file.fileSize / 1000}</td>
                     <td>
                         <input type="button" value="Скачать"
                                onclick="window.location.href = '${downloadButton}'">

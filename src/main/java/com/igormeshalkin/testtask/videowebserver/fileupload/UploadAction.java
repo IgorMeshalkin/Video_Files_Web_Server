@@ -24,6 +24,12 @@ public class UploadAction implements Runnable {
 
     @Override
     public void run() {
+        UploadTracker thisTracker = FileUploadManager.getUploadTrackers()
+                .stream()
+                .filter(ut -> ut.getOwner().equals(username) && ut.getFileName().equals(file.getOriginalFilename()))
+                .findFirst()
+                .orElse(null);
+
         try (BufferedInputStream inputStream = new BufferedInputStream(file.getInputStream());
              BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(FilesStorage.FILES_STORAGE_PATH + file.getOriginalFilename()))) {
             int i;
@@ -40,11 +46,15 @@ public class UploadAction implements Runnable {
                     }
 
                     percentsCounter += 5;
-                    System.out.println(username + " - " + file.getOriginalFilename() + " : " + percentsCounter + "%");
+                    if (thisTracker != null) {
+                        thisTracker.setProgress(percentsCounter);
+                        if (percentsCounter == 100) {
+                            FileUploadManager.removeTracker(thisTracker);
+                        }
+                    }
                 }
                 outputStream.write(i);
             }
-
             File newFile = new File(username, file.getOriginalFilename(), file.getSize(), FilesStorage.FILES_STORAGE_PATH);
             fileDAO.save(newFile);
 

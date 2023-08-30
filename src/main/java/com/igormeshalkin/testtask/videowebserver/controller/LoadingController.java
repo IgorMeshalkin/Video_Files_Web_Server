@@ -2,6 +2,7 @@ package com.igormeshalkin.testtask.videowebserver.controller;
 
 import com.igormeshalkin.testtask.videowebserver.exception.UploadVideoException;
 import com.igormeshalkin.testtask.videowebserver.fileupload.FileUploadManager;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 @RequestMapping("/loading")
@@ -26,7 +28,8 @@ public class LoadingController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public String uploadSubmit() {
+    public String uploadSubmit(Model model) {
+        model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getName());
         return "upload";
     }
 
@@ -34,7 +37,7 @@ public class LoadingController {
     public String uploadSubmit(@RequestParam("file") MultipartFile file, Model model) {
         try {
             fileUploadManager.addUploadToPool(file);
-        } catch (UploadVideoException ex) {
+        } catch (UploadVideoException | ExecutionException | InterruptedException ex) {
             model.addAttribute("message", ex.getMessage());
             return "errorPage";
         }

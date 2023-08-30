@@ -1,4 +1,3 @@
-
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <style>
@@ -32,7 +31,7 @@
     </form>
 </div>
 <div class="background">
-    <button onclick="window.location.href = '/'" class="backButton">Вернуться на главную</button>
+    <button onclick="window.location.href = '/loading'" class="backButton">Назад</button>
     <span class="message">
         <%= request.getAttribute("message") %>
     </span>
