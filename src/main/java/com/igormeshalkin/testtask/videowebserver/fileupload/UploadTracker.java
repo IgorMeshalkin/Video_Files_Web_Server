@@ -1,5 +1,6 @@
 package com.igormeshalkin.testtask.videowebserver.fileupload;
 
+//Объект для отслеживания прогресса загрузки файла. Создаётся временно.
 public class UploadTracker {
     public String owner;
     public String fileName;

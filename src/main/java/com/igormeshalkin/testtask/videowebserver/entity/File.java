@@ -71,15 +71,4 @@ public class File {
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
-
-    @Override
-    public String toString() {
-        return "File{" +
-                "id=" + id +
-                ", userName='" + userName + '\'' +
-                ", fileName='" + fileName + '\'' +
-                ", fileSize=" + fileSize +
-                ", filePath='" + filePath + '\'' +
-                '}';
-    }
 }

@@ -31,11 +31,14 @@ public class FileUploadManager {
     public void addUploadToPool(MultipartFile file) throws UploadVideoException, ExecutionException, InterruptedException {
         String currentUserName = SecurityContextHolder.getContext().getAuthentication().getName();
 
+        //Проверяет является ли файл - видео, если нет кидает исключение.
         if (!file.getContentType().split("/")[0].equals("video")) {
             throw new UploadVideoException(NOT_VIDEO_FILE_MESSAGE);
         }
 
+        //Проверяет сколько активных загрузок у текущего пользователя, если уже есть 2 кидает исключение.
         if (uploadTrackers.stream().filter(ut -> ut.getOwner().equals(currentUserName)).collect(Collectors.toSet()).size() < 2) {
+            //Добавляет новую загрузку в пул.
             Future<?> future = executorService.submit(new UploadAction(currentUserName, file, fileDAO));
             UploadTracker uploadTracker = new UploadTracker(currentUserName, file.getOriginalFilename(), file.getSize());
             uploadTrackers.add(uploadTracker);

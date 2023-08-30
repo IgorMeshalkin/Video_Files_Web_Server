@@ -24,12 +24,14 @@ public class UploadAction implements Runnable {
 
     @Override
     public void run() {
+        //Получает трекер текущей загрузки
         UploadTracker thisTracker = FileUploadManager.getUploadTrackers()
                 .stream()
                 .filter(ut -> ut.getOwner().equals(username) && ut.getFileName().equals(file.getOriginalFilename()))
                 .findFirst()
                 .orElse(null);
 
+        //Открывает потоки ввода-вывода для сохранения файла.
         try (BufferedInputStream inputStream = new BufferedInputStream(file.getInputStream());
              BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(FilesStorage.FILES_STORAGE_PATH + file.getOriginalFilename()))) {
             int i;
@@ -39,12 +41,14 @@ public class UploadAction implements Runnable {
                 ++bitesCounter;
                 if (bitesCounter % (file.getSize() / 20) == 0) {
 
+                    //Задержка для того что бы тестировать работу приложения локально, когда файлы сохраняются очень быстро.
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
 
+                    //Когда счётчик процентов достигает 100, трекер удаляется из списка (перестаёт отображаться на дашборде админа)
                     percentsCounter += 5;
                     if (thisTracker != null) {
                         thisTracker.setProgress(percentsCounter);
@@ -55,6 +59,8 @@ public class UploadAction implements Runnable {
                 }
                 outputStream.write(i);
             }
+
+            //Информация о загруженном файле и его собственнике сохраняется в БД.
             File newFile = new File(username, file.getOriginalFilename(), file.getSize(), FilesStorage.FILES_STORAGE_PATH);
             fileDAO.save(newFile);
 
