@@ -1,6 +1,7 @@
 package com.igormeshalkin.testtask.videowebserver.fileupload;
 
 import com.igormeshalkin.testtask.videowebserver.dao.FileDAO;
+import com.igormeshalkin.testtask.videowebserver.exception.UploadVideoException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,9 @@ import java.util.stream.Collectors;
 public class FileUploadManager {
     private final FileDAO fileDAO;
 
+    private final String MORE_THEN_TWO_UPLOADS_MESSAGE = "Вы не можете загружать больше двух файлов одновременно";
+    private final String NOT_VIDEO_FILE_MESSAGE = "Вы можете загружать только видео файлы";
+
     private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
     private static final Set<UploadTracker> uploadTrackers = new HashSet<>();
 
@@ -24,8 +28,12 @@ public class FileUploadManager {
         this.fileDAO = fileDAO;
     }
 
-    public void addUploadToPool(MultipartFile file) {
+    public void addUploadToPool(MultipartFile file) throws UploadVideoException {
         String currentUserName = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!file.getContentType().split("/")[0].equals("video")) {
+            throw new UploadVideoException(NOT_VIDEO_FILE_MESSAGE);
+        }
 
         if (uploadTrackers.stream().filter(ut -> ut.getOwner().equals(currentUserName)).collect(Collectors.toSet()).size() < 2) {
             Future<?> future = executorService.submit(new UploadAction(currentUserName, file, fileDAO));
@@ -38,7 +46,7 @@ public class FileUploadManager {
                 e.printStackTrace();
             }
         } else {
-            System.out.println("У этого юзера уже две задачи, пусть подождёт");
+            throw new UploadVideoException(MORE_THEN_TWO_UPLOADS_MESSAGE);
         }
     }
 
